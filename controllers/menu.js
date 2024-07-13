@@ -3,12 +3,52 @@ const moment = require('moment');
 
 const getAllMenu = async (req, res) => {
     try {
-        const menus = await menu.find();
+        let menus = await menu.find();
+        menus = parseWeek(menus)
         res.status(200).json({menus});
     } catch (error) {
         console.log(`Error: ${error.message}`);
     }
 }
+
+
+const getCurrentWeekMenu = async (req,res) => {
+    try{
+        let startOfWeek = moment().startOf('isoWeek').toDate();
+        let endOfWeek = moment().endOf('isoWeek').toDate();
+        let weeklyMenu = await menu.find({
+        date: {
+            $gte: startOfWeek,
+            $lte: endOfWeek
+        }
+        });
+        weeklyMenu = parseWeek(weeklyMenu)
+        res.status(200).json({weeklyMenu})
+    }
+    catch(err){
+        console.log("Error:"+ err);
+    }
+  };
+
+  const parseWeek = async (menus) => {
+    return menus.map(menuItem => {
+            return {
+                id: menuItem._id,
+                date: moment(menuItem.date).format('DD-MM-YYYY HH:mm:ss'),
+                day: menuItem.day,
+                meals: menuItem.meals.map(meal => {
+                    return {
+                        name: meal.name,
+                        startTime: moment(meal.startTime).format('DD-MM-YYYY HH:mm:ss'),
+                        endTime: moment(meal.endTime).format('DD-MM-YYYY HH:mm:ss'),
+                        price: meal.price,
+                        mealItems: meal.mealItems
+                    }
+                })
+            }
+   });
+}
+
 
 const createMenu = async (req, res) => {
     try {
@@ -54,4 +94,4 @@ const validateMenu = async (menuItem) => {
 }
 
 
-module.exports = {getAllMenu, createMenu};
+module.exports = {getAllMenu, createMenu, getCurrentWeekMenu};
