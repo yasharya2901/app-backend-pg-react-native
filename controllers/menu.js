@@ -4,7 +4,7 @@ const moment = require('moment');
 const getAllMenu = async (req, res) => {
     try {
         let menus = await menu.find();
-        menus = parseWeek(menus)
+        menus = await parseWeek(menus)
         res.status(200).json({menus});
     } catch (error) {
         console.log(`Error: ${error.message}`);
@@ -22,11 +22,11 @@ const getCurrentWeekMenu = async (req,res) => {
             $lte: endOfWeek
         }
         });
-        weeklyMenu = parseWeek(weeklyMenu)
+        weeklyMenu = await parseWeek(weeklyMenu);
         res.status(200).json({weeklyMenu})
     }
     catch(err){
-        console.log("Error:"+ err);
+        console.log(`Error: ${error.message}`);
     }
   };
 
@@ -71,7 +71,6 @@ const createMenu = async (req, res) => {
 const validateMenu = async (menuItem) => {
     // Parse and validate the date
     const parsedDate = moment(menuItem.date, 'DD-MM-YYYY HH:mm:ss', true);
-    console.log(menuItem.date);
     if (!parsedDate.isValid()) {
         throw new Error('Invalid date.');
     }
