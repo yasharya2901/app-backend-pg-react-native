@@ -1,75 +1,83 @@
 const menu = require('../models/menu');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
+// Function to get today's menu, adjusted for IST
 const getTodayMenu = async (req, res) => {
     try {
-        let today = moment().startOf('day').toDate();
+        // Get today's date in IST and convert it to UTC
+        let today = moment().tz('Asia/Kolkata').startOf('day').utc().toDate();
         let menuToday = await menu.find({
             date: today
         });
         menuToday = await parseWeek(menuToday);
-        res.status(200).json({menuToday});
+        res.status(200).json({ menuToday });
     } catch (error) {
         console.log(`Error: ${error.message}`);
+        res.status(500).json({ success: false, message: 'Error fetching today\'s menu' });
     }
 }
 
+// Function to get all menus
 const getAllMenu = async (req, res) => {
     try {
         let menus = await menu.find();
-        menus = await parseWeek(menus)
-        res.status(200).json({menus});
+        menus = await parseWeek(menus);
+        res.status(200).json({ menus });
     } catch (error) {
         console.log(`Error: ${error.message}`);
+        res.status(500).json({ success: false, message: 'Error fetching all menus' });
     }
 }
 
-
-const getCurrentWeekMenu = async (req,res) => {
-    try{
-        let startOfWeek = moment().startOf('isoWeek').toDate();
-        let endOfWeek = moment().endOf('isoWeek').toDate();
+// Function to get the current week's menu, adjusted for IST
+const getCurrentWeekMenu = async (req, res) => {
+    try {
+        // Get the start and end of the current week in IST and convert them to UTC
+        let startOfWeek = moment().tz('Asia/Kolkata').startOf('isoWeek').utc().toDate();
+        let endOfWeek = moment().tz('Asia/Kolkata').endOf('isoWeek').utc().toDate();
         let weeklyMenu = await menu.find({
-        date: {
-            $gte: startOfWeek,
-            $lte: endOfWeek
-        }
+            date: {
+                $gte: startOfWeek,
+                $lte: endOfWeek
+            }
         });
         weeklyMenu = await parseWeek(weeklyMenu);
-        res.status(200).json({weeklyMenu})
-    }
-    catch(err){
+        res.status(200).json({ weeklyMenu });
+    } catch (error) {
         console.log(`Error: ${error.message}`);
+        res.status(500).json({ success: false, message: 'Error fetching current week\'s menu' });
     }
-  };
+};
 
-  const parseWeek = async (menus) => {
+// Function to parse menus and convert dates and times to IST for display
+const parseWeek = async (menus) => {
     return menus.map(menuItem => {
-            return {
-                id: menuItem._id,
-                date: moment(menuItem.date).format('DD-MM-YYYY HH:mm:ss'),
-                day: menuItem.day,
-                meals: menuItem.meals.map(meal => {
-                    return {
-                        name: meal.name,
-                        startTime: moment(meal.startTime).format('DD-MM-YYYY HH:mm:ss'),
-                        endTime: moment(meal.endTime).format('DD-MM-YYYY HH:mm:ss'),
-                        price: meal.price,
-                        mealItems: meal.mealItems
-                    }
-                })
-            }
-   });
+        return {
+            id: menuItem._id,
+            date: moment(menuItem.date).tz('Asia/Kolkata').format('DD-MM-YYYY HH:mm:ss'),
+            day: menuItem.day,
+            meals: menuItem.meals.map(meal => {
+                return {
+                    name: meal.name,
+                    startTime: moment(meal.startTime).tz('Asia/Kolkata').format('DD-MM-YYYY HH:mm:ss'),
+                    endTime: moment(meal.endTime).tz('Asia/Kolkata').format('DD-MM-YYYY HH:mm:ss'),
+                    price: meal.price,
+                    mealItems: meal.mealItems
+                }
+            })
+        }
+    });
 }
 
-
+// Function to create a new menu
 const createMenu = async (req, res) => {
     try {
+        // Validate and adjust the menu date and times
         await validateMenu(req.body);
         const menuItem = new menu(req.body);
         await menuItem.save();
         res.status(201).json({
-            sucess: true,
+            success: true,
             message: 'Menu created successfully.'
         });
     } catch (error) {
@@ -81,29 +89,29 @@ const createMenu = async (req, res) => {
     }
 }
 
+// Function to validate and adjust menu dates and times to UTC for saving
 const validateMenu = async (menuItem) => {
-    // Parse and validate the date
-    const parsedDate = moment(menuItem.date, 'DD-MM-YYYY HH:mm:ss', true);
+    // Parse and validate the date in IST
+    const parsedDate = moment.tz(menuItem.date, 'DD-MM-YYYY HH:mm:ss', 'Asia/Kolkata');
     if (!parsedDate.isValid()) {
         throw new Error('Invalid date.');
     }
-    menuItem.date = parsedDate.toDate();
+    menuItem.date = parsedDate.utc().toDate(); // Convert to UTC for saving
 
-    // Parse and validate the meal times
+    // Parse and validate the meal times in IST
     if (menuItem.meals) {
         menuItem.meals.forEach(meal => {
-            const parsedStartTime = moment(meal.startTime, 'DD-MM-YYYY HH:mm:ss', true);
-            const parsedEndTime = moment(meal.endTime, 'DD-MM-YYYY HH:mm:ss', true);
+            const parsedStartTime = moment.tz(meal.startTime, 'DD-MM-YYYY HH:mm:ss', 'Asia/Kolkata');
+            const parsedEndTime = moment.tz(meal.endTime, 'DD-MM-YYYY HH:mm:ss', 'Asia/Kolkata');
 
             if (!parsedStartTime.isValid() || !parsedEndTime.isValid()) {
                 throw new Error('Invalid meal time.');
             }
 
-            meal.startTime = parsedStartTime.toDate();
-            meal.endTime = parsedEndTime.toDate();
+            meal.startTime = parsedStartTime.utc().toDate(); // Convert to UTC for saving
+            meal.endTime = parsedEndTime.utc().toDate(); // Convert to UTC for saving
         });
     }
 }
 
-
-module.exports = {getAllMenu, createMenu, getCurrentWeekMenu, getTodayMenu};
+module.exports = { getAllMenu, createMenu, getCurrentWeekMenu, getTodayMenu };
