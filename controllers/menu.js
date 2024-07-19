@@ -1,6 +1,19 @@
 const menu = require('../models/menu');
 const moment = require('moment');
 
+const getTodayMenu = async (req, res) => {
+    try {
+        let today = moment().startOf('day').toDate();
+        let menuToday = await menu.find({
+            date: today
+        });
+        menuToday = await parseWeek(menuToday);
+        res.status(200).json({menuToday});
+    } catch (error) {
+        console.log(`Error: ${error.message}`);
+    }
+}
+
 const getAllMenu = async (req, res) => {
     try {
         let menus = await menu.find();
@@ -93,4 +106,4 @@ const validateMenu = async (menuItem) => {
 }
 
 
-module.exports = {getAllMenu, createMenu, getCurrentWeekMenu};
+module.exports = {getAllMenu, createMenu, getCurrentWeekMenu, getTodayMenu};
