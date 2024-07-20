@@ -91,4 +91,6 @@ This is the backend server for the PG Application. It is built using Node.js and
         ]
     }
     ```
-    NOTE: The date should be in the format `DD-MM-YYYY HH:mm:ss`. And, the first date should have the time as `00:00:00`.
+    NOTE: 
+    1. The date should be in the format `DD-MM-YYYY HH:mm:ss`. And, the first date should have the time as `00:00:00`.
+    2. The `type` in `mealItems` can be `common`, `veg`, or `non-veg`.
