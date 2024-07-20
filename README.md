@@ -39,6 +39,31 @@ This is the backend server for the PG Application. It is built using Node.js and
 <td>GET</td>
 <td>Get the menu for today</td>
 </tr>
+
+<tr>
+<td>/api/v1/user</td>
+<td>POST</td>
+<td>Create a new user</td>
+</tr>
+
+<tr>
+<td>/api/v1/user</td>
+<td>GET</td>
+<td>Get all Users</td>
+</tr>
+
+<tr>
+<td>/api/v1/user/:id</td>
+<td>GET</td>
+<td>Get user with that id</td>
+</tr>
+
+<tr>
+<td>/api/v1/user/:id</td>
+<td>DELETE</td>
+<td>Delete user with that id</td>
+</tr>
+
 </table>
 
 ## Example
@@ -90,7 +115,57 @@ This is the backend server for the PG Application. It is built using Node.js and
             }
         ]
     }
+
     ```
-    NOTE: 
-    1. The date should be in the format `DD-MM-YYYY HH:mm:ss`. And, the first date should have the time as `00:00:00`.
-    2. The `type` in `mealItems` can be `common`, `veg`, or `non-veg`.
+2. JSON body for POST `/api/v1/user/`
+    ```json
+    {
+        "name": "Charlie Brown",
+        "phoneNumber": "3456789012",
+        "alternatePhone": "2987654321",
+        "roomNumber": "303",
+        "address": {
+            "addressLine1": "101 Pine St",
+            "addressLine2": "",
+            "city": "Sample City",
+            "state": "Sample State",
+            "pincode": "456456",
+            "country": "Sample Country"
+        },
+        "foodPreference": "veg",
+        "foodStatus": "opt-in",
+        "userType": "admin"
+        }
+
+    
+    ```
+    
+    
+
+## NOTEs
+
+1. **Date Format**:
+   - All dates must be in the format `DD-MM-YYYY HH:mm:ss`.
+   - The initial date should have the time set to `00:00:00`.
+
+2. **Meal Items**:
+   - The `type` in `mealItems` can be one of the following:
+     - `common`
+     - `veg`
+     - `non-veg`
+
+3. **Food Preference**:
+   - The `foodPreference` field is an enum with the following values:
+     - `veg`
+     - `non-veg`
+
+4. **Food Status**:
+   - The `foodStatus` field is an enum with the following values:
+     - `opt-in`
+     - `opt-out`
+
+5. **User Type**:
+   - The `userType` field is an enum with the following values:
+     - `user`
+     - `staff`
+     - `admin`
