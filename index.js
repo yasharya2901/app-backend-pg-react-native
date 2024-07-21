@@ -1,5 +1,6 @@
 require('dotenv').config();
 const menu = require("./routes/menu");
+const user = require("./routes/user");
 const connectDB = require("./repositories/connectMongoDB")
 const express = require("express");
 const app = express();
@@ -13,6 +14,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/menu", menu);
+app.use("/api/v1/user", user);
 
 
 const start = async() => {
