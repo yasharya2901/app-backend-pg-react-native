@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/menu", menu);
 app.use("/api/v1/user", user);
-app.use("/api/auth", auth);
+app.use("/api/v1/auth", auth);
 
 
 const start = async() => {
