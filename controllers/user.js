@@ -13,8 +13,8 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
     try {
-        let user = await user.findById(req.params.id);
-        res.status(200).json({ user });
+        let curuser = await user.findById(req.params.id);
+        res.status(200).json({ curuser });
     } catch (error) {
         console.log(`Error: ${error.message}`);
         res.status(500).json({ success: false, message: 'Error fetching user by ID' });
