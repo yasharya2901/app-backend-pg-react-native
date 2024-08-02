@@ -20,7 +20,7 @@ const getTodayMenu = async (req, res) => {
 // Function to get all menus
 const getAllMenu = async (req, res) => {
     try {
-        let menus = await menu.find();
+        let menus = await menu.find().sort({date: 1 });
         menus = await parseWeek(menus);
         res.status(200).json({ menus });
     } catch (error) {
@@ -40,7 +40,7 @@ const getCurrentWeekMenu = async (req, res) => {
                 $gte: startOfWeek,
                 $lte: endOfWeek
             }
-        });
+        }).sort({date: 1 });
         weeklyMenu = await parseWeek(weeklyMenu);
         res.status(200).json({ weeklyMenu });
     } catch (error) {
