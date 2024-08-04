@@ -4,6 +4,7 @@ const user = require("./routes/user");
 const connectDB = require("./repositories/connectMongoDB")
 const express = require("express");
 const auth = require('./routes/auth');
+const preferenceRoutes = require('./routes/preferences');
 const app = express();
 
 app.use(express.json());
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/menu", menu);
 app.use("/api/v1/user", user);
 app.use("/api/v1/auth", auth);
+app.use('/api/v1/preferences', preferenceRoutes);
 
 
 const start = async() => {
